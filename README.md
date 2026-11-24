@@ -37,9 +37,9 @@ A job application tracker that replaced my Excel sheet. A FastAPI backend stores
 
 The app runs on Linux and Windows. Pick your system below; after setup, everything works the same way on both.
 
-### Linux (CachyOS / Arch)
+### Linux
 
-**1. PostgreSQL.** Skip any step you've already done.
+**1. PostgreSQL.** Skip any step if you've already done them.
 
 ```fish
 sudo pacman -S --needed postgresql uv
