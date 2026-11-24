@@ -1,0 +1,19 @@
+# Render Blueprint for the public demo: one free web service running on sample data.
+# The database lives on Neon (free, no expiry); paste its connection string when Render asks for DATABASE_URL.
+services:
+  - type: web
+    name: job-tracker-demo
+    runtime: python
+    plan: free
+    buildCommand: pip install .
+    startCommand: jobtracker serve --host 0.0.0.0
+    healthCheckPath: /api/health
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12.8"
+      - key: JOBTRACKER_DEMO
+        value: "1"
+      - key: JOBTRACKER_REPO_URL
+        value: https://github.com/EMoon-03/job-tracker
+      - key: DATABASE_URL
+        sync: false

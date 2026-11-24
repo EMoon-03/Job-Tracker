@@ -1,0 +1,3 @@
+/* Self-hosted Figtree (variable, latin subset), so the app makes no requests to Google. */
+@font-face{font-family:'Figtree';font-style:normal;font-display:swap;font-weight:300 900;
+  src:url(figtree.woff2) format('woff2-variations'),url(figtree.woff2) format('woff2')}
