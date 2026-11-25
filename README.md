@@ -190,19 +190,6 @@ You can use **Claude** or **ChatGPT**. Both need an API key, which is billed per
 
 Add the key to your settings file and run `jobtracker restart`. A **Fill from posting** button then appears in the top bar. To keep both installed, use `'.[claude,openai]'`. With both keys set, Claude is used; add `JOBTRACKER_AI=openai` to use ChatGPT instead. To turn it off, comment out the key and restart.
 
-## Put it on GitHub
-
-```fish
-cd ~/Projects/job-tracker
-git init -b main
-git add .
-git status                     # .env must NOT be listed (it holds your Gmail app password)
-git commit -m "Job Tracker: FastAPI + PostgreSQL application tracker"
-gh repo create job-tracker --public --source=. --push
-```
-
-`gh` is the GitHub CLI (`sudo pacman -S github-cli`, then `gh auth login` once). Without it, create an empty repo named `job-tracker` on github.com and run `git remote add origin git@github.com:EMoon-03/job-tracker.git && git push -u origin main`.
-
 ## Live demo (Render + Neon, free)
 
 The public demo runs with `JOBTRACKER_DEMO=1`:
@@ -219,7 +206,7 @@ Your own applications never go near it.
 
 Every push to `main` redeploys. Free Render services sleep after 15 minutes without traffic and take about a minute to wake. Neon's free database doesn't expire. Render's free Postgres does, which is why it isn't used here.
 
-## Host your own tracker (private)
+## You can host your own tracker (private)
 
 For your real data, the simplest option is to keep running it locally. If you want it reachable from your phone too, deploy a second Render service the same way, but:
 
@@ -233,7 +220,7 @@ The app then asks for that password, through the browser's sign-in prompt over H
 
 After `uv tool install .` the command is just `jobtracker`. From a checkout without installing it, prefix each command with `uv run`.
 
-| Command | What it does |
+| Command | What each command line does |
 | --- | --- |
 | `jobtracker install` / `uninstall` | Run in the background, start on login, add a launcher entry; or undo that |
 | `jobtracker restart` | Restart the background app after editing settings or updating |
@@ -260,51 +247,4 @@ schema_migrations       which files in src/jobtracker/migrations have run
 
 `stage` is constrained to `wishlist, applied, assessment, interview, offer, rejected, withdrawn, ghosted`. `updated_at` is maintained by a trigger. To change the schema, add the next numbered file (say `004_something.sql`) to `src/jobtracker/migrations/` and run `jobtracker migrate`.
 
-## API
-
-| Method | Path | |
-| --- | --- | --- |
-| GET | `/api/applications` | All applications, with their timelines |
-| GET | `/api/applications/{id}` | One application |
-| PUT | `/api/applications/{id}` | Create or replace (UUID chosen by the client) |
-| DELETE | `/api/applications/{id}` | Delete, along with its timeline |
-| POST | `/api/applications/bulk` | Import many rows in one transaction, skipping duplicates |
-| POST | `/api/extract` | Posting text → fields with Claude or ChatGPT (503 without an AI key) |
-| GET | `/api/gmail/status`, `/api/gmail/suggestions` | Sync status and pending suggestions |
-| POST | `/api/gmail/sync` | Run a Gmail sync now |
-| POST | `/api/gmail/suggestions/{id}/accept` or `/dismiss` | Resolve a suggestion |
-| GET | `/api/health`, `/api/config` | Liveness check and feature flags |
-
-Interactive docs are at `http://localhost:8765/docs`.
-
-## Development
-
-```fish
-createdb jobtracker_test
-uv run pytest
-```
-
-The tests run against a real Postgres database (`TEST_DATABASE_URL`, default `postgresql:///jobtracker_test`). They wipe that database's `public` schema, so never point it at your real database.
-
-On Windows, create the test database and point the tests at it first: `$env:TEST_DATABASE_URL = "postgresql://postgres:postgres@localhost:5432/jobtracker_test"`. The Windows install code is covered by tests that run on any system, using a stand-in for the registry.
-
-```
-src/jobtracker/
-  main.py         FastAPI app and routes
-  db.py           connection pool, migration runner, SQL
-  models.py       Pydantic request models (validation)
-  extract.py      optional AI (Claude or ChatGPT): posting parser and email fallback
-  gmail_sync.py   IMAP fetch, matching, suggestions
-  classify.py     rules that read a job email: what happened, which company, which role
-  harper.py       turns Harper job digests into wishlist cards
-  demo.py         sample data and hourly reset for the public demo
-  cli.py          `jobtracker` command
-  install.py      `jobtracker install`: login service, launcher entry, settings file
-  migrations/     numbered .sql files
-  static/         the web UI (single HTML file, no build step) and its self-hosted font
-sql/queries.sql   handy reporting queries for psql
-render.yaml       Render blueprint for the demo
-docs/screenshots/ README images (taken from the demo with headless Chrome)
-```
-
-The font (Figtree) is under the SIL Open Font License; see `src/jobtracker/static/fonts/LICENSE.txt`.
+## Interactive docs are at `http://localhost:8765/docs`.
